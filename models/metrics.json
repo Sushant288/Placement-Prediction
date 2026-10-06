@@ -1,0 +1,15 @@
+{
+  "classification_metrics": {
+    "model_name": "RandomForestClassifier",
+    "accuracy": 0.0,
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1_score": 0.0
+  },
+  "regression_metrics": {
+    "model_name": "RandomForestRegressor",
+    "mae": 0.0,
+    "rmse": 0.0,
+    "r2_score": 0.0
+  }
+}
