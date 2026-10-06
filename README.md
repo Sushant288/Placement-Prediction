@@ -75,3 +75,24 @@ Launch the Streamlit dashboard:
 ```bash
 streamlit run app.py
 ```
+
+---
+
+## 🔬 Module 1: Data Generation & Preprocessing
+
+### Execution Order
+Run the data pipeline from the repository root:
+```bash
+python -m backend.data_generator
+python -m backend.preprocessing
+```
+
+### Generated Artifacts
+- `data/raw/placement_data.csv`: Raw synthetic dataset (2,500 samples, 15 columns)
+- `data/processed/clean_data.csv`: Cleaned, validated, and feature-engineered dataset (2,500 samples, 19 columns)
+- `data/processed/train.csv`: Stratified training set (2,000 samples, 80%)
+- `data/processed/test.csv`: Stratified evaluation set (500 samples, 20%)
+- `reports/figures/*.png`: Exploratory data analysis charts generated from `notebooks/01_EDA.ipynb`
+
+> [!NOTE]
+> The current dataset is synthetically generated using calibrated latent ability/effort factors and empirical hiring relationships. The entire end-to-end pipeline operates seamlessly on real-world placement data by placing an institutional dataset with matching schema into `data/raw/placement_data.csv`.

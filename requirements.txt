@@ -6,3 +6,9 @@ scikit-learn
 joblib
 streamlit
 plotly
+
+# notebooks
+ipykernel
+nbformat
+nbconvert
+jupyter
