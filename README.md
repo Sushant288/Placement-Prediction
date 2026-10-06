@@ -9,34 +9,38 @@ An end-to-end Machine Learning and Data Science project to analyze placement rea
 ```text
 placement-analyzer/
 │
+├── backend/
+│   ├── __init__.py
+│   ├── config.py                       # Configuration, benchmarks, thresholds, paths
+│   ├── data_generator.py               # Module 1: Synthetic data generator
+│   ├── preprocessing.py                # Module 1: Cleaning & feature engineering
+│   ├── train_models.py                 # Module 2: Model training & evaluation
+│   ├── predict.py                      # Module 2: Inference pipelines
+│   ├── skill_gap.py                    # Module 3: Skill gap analysis engine
+│   ├── recommender.py                  # Module 3: Recommendation engine
+│   └── services.py                     # Service layer connecting backend modules
+│
+├── frontend/
+│   ├── __init__.py
+│   ├── charts.py                       # Module 4: Plotly visualization helpers
+│   └── components.py                   # Module 4: UI layout and components
+│
 ├── data/
 │   ├── raw/
-│   │   └── placement_data.csv          # Generated synthetic dataset
+│   │   └── .gitkeep
 │   └── processed/
-│       └── clean_data.csv              # Cleaned + feature-engineered data
+│       └── .gitkeep
 │
 ├── models/
-│   ├── placement_model.pkl             # Best placement status classifier
-│   ├── salary_model.pkl                # Best salary package regressor
-│   └── metrics.json                    # Model comparison and evaluation metrics
+│   └── .gitkeep
 │
 ├── notebooks/
 │   ├── 01_EDA.ipynb                    # Exploratory Data Analysis
 │   └── 02_Model_Training.ipynb         # Model training & experiment tracking
 │
 ├── reports/
-│   └── figures/                        # Saved EDA and feature importance plots
-│
-├── src/
-│   ├── __init__.py
-│   ├── config.py                       # Benchmarks, thresholds, paths, and role requirements
-│   ├── data_generator.py               # Module 1: Synthetic data generator
-│   ├── preprocessing.py                # Module 1: Cleaning and feature engineering pipeline
-│   ├── train_models.py                 # Module 2: Model training, tuning, and evaluation
-│   ├── predict.py                      # Module 2: Inference utilities
-│   ├── skill_gap.py                    # Module 3: Skill gap analysis engine
-│   ├── recommender.py                  # Module 3: Recommendation engine
-│   └── charts.py                       # Module 4: Visualization and chart helpers
+│   └── figures/
+│       └── .gitkeep
 │
 ├── app.py                              # Module 4: Streamlit web application entry point
 ├── requirements.txt                    # Project dependencies
