@@ -1,67 +1,129 @@
-# Placement Analyzer & Prediction
+# Placement Prediction and Skill Gap Analysis System
 
-An end-to-end Machine Learning and Data Science project to analyze placement readiness, predict placement outcomes and salary packages, identify skill gaps, and provide personalized career recommendations via an interactive Streamlit web application.
+An end-to-end Machine Learning and Data Science system that evaluates student placement readiness, estimates expected salary packages, benchmarks individual competencies against industry role profiles, generates prioritized improvement recommendations with measured gains, and provides interactive what-if simulations through a Streamlit web application.
 
 ---
 
-## 📁 Project Structure
+## Key Features
+
+- Placement Probability: Predicts likelihood of campus placement using calibrated classification models.
+- Salary Package Range: Estimates conditional salary package (LPA) with a 15% confidence interval for placed candidates.
+- Holistic Readiness Score: Combines statistical placement probability with engineered domain sub-scores (0-100 scale).
+- Risk Level Categorization: Classifies placement risk into LOW, MEDIUM, or HIGH tiers with color-coded alerts.
+- Skill Gap Analysis: Benchmarks 7 core technical and soft skills against target role profiles (Software Developer, Data Analyst, Data Scientist).
+- Prioritized Recommendations: Delivers actionable improvement steps ordered by priority and quantified placement probability gains.
+- Interactive What-If Simulation: Live experimentation tool enabling candidates to test skill and profile adjustments and observe immediate metric shifts.
+- Cross-Role Comparison: Ranks alignment across all defined career tracks to reveal best-fit opportunities.
+- Institutional Insights: Cohort-level distributions, placement rates across internships/CGPA bands, model leaderboards, and feature importance rankings.
+- Exportable Reports: Instant downloads of complete diagnostic reports in Markdown and tabular summaries in CSV.
+
+---
+
+## System Architecture
 
 ```text
-placement-analyzer/
-│
-├── backend/
-│   ├── __init__.py
-│   ├── config.py                       # Configuration, benchmarks, thresholds, paths
-│   ├── data_generator.py               # Module 1: Synthetic data generator
-│   ├── preprocessing.py                # Module 1: Cleaning & feature engineering
-│   ├── train_models.py                 # Module 2: Model training & evaluation
-│   ├── predict.py                      # Module 2: Inference pipelines
-│   ├── skill_gap.py                    # Module 3: Skill gap analysis engine
-│   ├── recommender.py                  # Module 3: Recommendation engine
-│   └── services.py                     # Service layer connecting backend modules
-│
-├── frontend/
-│   ├── __init__.py
-│   ├── charts.py                       # Module 4: Plotly visualization helpers
-│   └── components.py                   # Module 4: UI layout and components
-│
-├── data/
-│   ├── raw/
-│   │   └── .gitkeep
-│   └── processed/
-│       └── .gitkeep
-│
-├── models/
-│   └── .gitkeep
-│
-├── notebooks/
-│   ├── 01_EDA.ipynb                    # Exploratory Data Analysis
-│   └── 02_Model_Training.ipynb         # Model training & experiment tracking
-│
-├── reports/
-│   └── figures/
-│       └── .gitkeep
-│
-├── app.py                              # Module 4: Streamlit web application entry point
-├── requirements.txt                    # Project dependencies
-├── README.md                           # Documentation
-└── .gitignore                          # Git ignore rules
++-----------------------------------------------------------------------------------+
+|                                     DATA PIPELINE                                 |
+|                                                                                   |
+|  [data_generator.py]  --->  data/raw/placement_data.csv (2,500 records)          |
+|                                   |                                               |
+|  [preprocessing.py]   --->  data/processed/clean_data.csv                         |
+|                             data/processed/train.csv & test.csv (80/20 split)     |
++-----------------------------------------------------------------------------------+
+                                    |
+                                    v
++-----------------------------------------------------------------------------------+
+|                                 MACHINE LEARNING                                  |
+|                                                                                   |
+|  [train_models.py]    --->  models/placement_model.pkl (Logistic Regression)      |
+|                             models/salary_model.pkl    (Linear Regression)        |
+|                             models/metrics.json        (CV & Test metrics)        |
+|                                   |                                               |
+|  [predict.py]         --->  Inference, readiness scores, risk classification      |
++-----------------------------------------------------------------------------------+
+                                    |
+                                    v
++-----------------------------------------------------------------------------------+
+|                          SKILL GAP & RECOMMENDATIONS                              |
+|                                                                                   |
+|  [skill_gap.py]       --->  Role benchmarking, gap calculation, fit percentages   |
+|  [recommender.py]     --->  Impact analysis, prioritized actions, simulations     |
++-----------------------------------------------------------------------------------+
+                                    |
+                                    v
++-----------------------------------------------------------------------------------+
+|                         BACKEND SERVICE LAYER (services.py)                       |
+|                                                                                   |
+|  - Validates inputs and enforces clean boundaries                                 |
+|  - Caches institutional analytics and datasets                                    |
+|  - Serves pure Python dictionaries/lists (no DataFrames or ML objects to UI)      |
++-----------------------------------------------------------------------------------+
+                                    |
+                                    v
++-----------------------------------------------------------------------------------+
+|                         STREAMLIT PRESENTATION (frontend/)                        |
+|                                                                                   |
+|  frontend/charts.py     ->  Pure Plotly visualization builders (light/dark adapt) |
+|  frontend/components.py ->  UI layout, card metrics, session-state management     |
+|  app.py                 ->  Thin orchestrator entry point (< 60 lines)            |
++-----------------------------------------------------------------------------------+
 ```
 
 ---
 
-## 🚀 Getting Started
+## Project Structure
 
-### 1. Prerequisites
-- Python 3.9+ installed
+```text
+Placement-Prediction/
+|-- backend/
+|   |-- __init__.py
+|   |-- config.py             # Global constants, paths, role benchmarks, UI config
+|   |-- data_generator.py     # Module 1: Calibrated synthetic dataset generator
+|   |-- preprocessing.py      # Module 1: Cleaning, validation, feature engineering
+|   |-- train_models.py       # Module 2: Cross-validated ML training and model selection
+|   |-- predict.py            # Module 2: Single-student inference and metric retrieval
+|   |-- skill_gap.py          # Module 3: Benchmark comparisons and role fit scores
+|   |-- recommender.py        # Module 3: Impact calculations and coaching engine
+|   `-- services.py           # Module 4: Unified facade and caching service layer
+|-- frontend/
+|   |-- __init__.py
+|   |-- charts.py             # Module 4: Pure Plotly chart generation functions
+|   `-- components.py         # Module 4: Streamlit components, state, tab layouts
+|-- data/
+|   |-- raw/
+|   |   `-- placement_data.csv
+|   `-- processed/
+|       |-- clean_data.csv
+|       |-- train.csv
+|       `-- test.csv
+|-- models/
+|   |-- placement_model.pkl
+|   |-- salary_model.pkl
+|   `-- metrics.json
+|-- notebooks/
+|   |-- 01_EDA.ipynb          # Exploratory Data Analysis
+|   `-- 02_Model_Training.ipynb # Model experiments and validation
+|-- reports/
+|   `-- figures/              # Evaluation plots and diagnostic charts (.png)
+|-- app.py                    # Module 4: Streamlit application entry point
+|-- requirements.txt          # Production dependencies
+`-- README.md                 # System documentation
+```
 
-### 2. Installation
-Create and activate a virtual environment:
+---
+
+## Quick Start
+
+### 1. Environment Setup
+
+Create and activate a virtual environment (Python 3.9+):
 ```bash
 python -m venv venv
+
 # Windows:
 venv\Scripts\activate
-# Linux/macOS:
+
+# Linux / macOS:
 source venv/bin/activate
 ```
 
@@ -70,113 +132,181 @@ Install dependencies:
 pip install -r requirements.txt
 ```
 
-### 3. Running the Application
-Launch the Streamlit dashboard:
+### 2. Execution Pipeline
+
+Note: The repository already includes generated datasets and trained model artifacts. If starting from a fresh clone without artifacts, execute the following commands in order from the repository root:
+
 ```bash
+# Step 1: Generate raw synthetic dataset (2,500 records)
+python -m backend.data_generator
+
+# Step 2: Clean data and compute engineered features
+python -m backend.preprocessing
+
+# Step 3: Train machine learning models and record metrics
+python -m backend.train_models
+
+# Step 4: Launch the Streamlit dashboard
 streamlit run app.py
 ```
 
 ---
 
-## 🔬 Module 1: Data Generation & Preprocessing
+## Module-by-Module Summary
 
-### Execution Order
-Run the data pipeline from the repository root:
-```bash
-python -m backend.data_generator
-python -m backend.preprocessing
-```
+### Module 1: Data Generation & Preprocessing
+- Files: `backend/data_generator.py`, `backend/preprocessing.py`, `backend/config.py`
+- Generates 2,500 student records with correlated academic, experiential, and skill attributes based on underlying latent effort.
+- Performs domain boundary validation, handles outliers, and builds 4 composite sub-scores:
+  - `tech_score`: Weighted sum of DSA, programming, SQL, cloud, web.
+  - `soft_score`: Weighted sum of communication and aptitude.
+  - `experience_score`: Normalized sum of internships, projects, certifications.
+  - `academic_score`: Combined metric of CGPA and attendance penalized by active backlogs.
+- Splits data into stratified train (2,000) and test (500) sets (80/20).
 
-### Generated Artifacts
-- `data/raw/placement_data.csv`: Raw synthetic dataset (2,500 samples, 15 columns)
-- `data/processed/clean_data.csv`: Cleaned, validated, and feature-engineered dataset (2,500 samples, 19 columns)
-- `data/processed/train.csv`: Stratified training set (2,000 samples, 80%)
-- `data/processed/test.csv`: Stratified evaluation set (500 samples, 20%)
-- `reports/figures/*.png`: Exploratory data analysis charts generated from `notebooks/01_EDA.ipynb`
+### Module 2: Machine Learning Models & Inference
+- Files: `backend/train_models.py`, `backend/predict.py`
+- Leakage-free training using 5-fold cross-validation on `train.csv` only.
+- Placement classification: Logistic Regression, Decision Tree, Random Forest. Best model chosen by highest CV ROC-AUC (within 0.005 tolerance) broken by lowest CV Brier score.
+- Salary regression: Evaluated strictly on placed students (`placed == 1`) using Linear Regression and Random Forest Regressor. Best model chosen by lowest CV RMSE.
+- Generates diagnostic figures in `reports/figures/` and metrics in `models/metrics.json`.
 
-> [!NOTE]
-> The current dataset is synthetically generated using calibrated latent ability/effort factors and empirical hiring relationships. The entire end-to-end pipeline operates seamlessly on real-world placement data by placing an institutional dataset with matching schema into `data/raw/placement_data.csv`.
+### Module 3: Skill Gap Analysis & Recommendation Engine
+- Files: `backend/skill_gap.py`, `backend/recommender.py`
+- Compares candidates against role profiles across 7 skills and 5 profile requirements.
+- Computes single-feature impact analysis (probability delta from improving each deficient area to its benchmark).
+- Generates actionable, prioritized coaching recommendations.
+- Simulates arbitrary what-if scenarios and benchmark attainment.
+
+### Module 4: Streamlit Dashboard & Integration
+- Files: `backend/services.py`, `frontend/charts.py`, `frontend/components.py`, `app.py`
+- Clean architectural boundary: frontend never accesses backend ML models, data files, or internal modules directly.
+- Pure Plotly visualizations that adapt dynamically to light and dark themes.
+- Five comprehensive tabs: Prediction, Skill Gap, Recommendations, What-If Simulation, and Institutional Insights.
+- Export options for Markdown diagnostics and CSV records.
 
 ---
 
-## 🤖 Module 2: Machine Learning Models
+## Machine Learning Results
 
-### Execution Order
-Execute model training and test prediction from the repository root:
+Real performance metrics recorded on the holdout test set (500 samples, 20%) from `models/metrics.json`:
+
+### Placement Classifier Benchmark
+
+| Model | CV ROC-AUC | CV Brier | Test Accuracy | Test Precision | Test Recall | Test F1 | Test ROC-AUC | Test Brier | Selected |
+|---|---|---|---|---|---|---|---|---|---|
+| Logistic Regression | 0.9134 | 0.1082 | 0.8520 | 0.8630 | 0.9292 | 0.8949 | 0.9127 | 0.1081 | Yes |
+| Random Forest | 0.9099 | 0.1100 | 0.8580 | 0.8602 | 0.9440 | 0.9001 | 0.9068 | 0.1095 | No |
+| Decision Tree | 0.8864 | 0.1222 | 0.8160 | 0.8459 | 0.8909 | 0.8678 | 0.8688 | 0.1272 | No |
+
+Baseline Test Brier Score (Dummy Classifier): 0.2183.
+Selection Reason: Logistic Regression was selected because its CV ROC-AUC (0.9134) was within the 0.005 tolerance of the highest score and achieved the lowest CV Brier score (0.1082), ensuring well-calibrated probabilities.
+
+### Salary Regressor Benchmark (Placed Candidates)
+
+| Model | CV RMSE | CV MAE | Test MAE | Test RMSE | Test R2 | Selected |
+|---|---|---|---|---|---|---|
+| Linear Regression | 1.1766 | 0.8163 | 0.7850 | 1.1202 | 0.7781 | Yes |
+| Random Forest Regressor | 1.2266 | 0.8250 | 0.7717 | 1.1423 | 0.7693 | No |
+
+Baseline Test RMSE (Mean Regressor): 2.3786 LPA.
+Selection Reason: Linear Regression achieved the lowest CV RMSE (1.1766) and CV MAE (0.8163).
+
+---
+
+## Role Benchmarks & Skill Status Rules
+
+### Career Profiles
+
+1. Software Developer:
+   - Primary Focus: DSA (8, wt 3.0), Programming (8, wt 3.0).
+   - Secondary: SQL (6), Web (6), Communication (6), Aptitude (6), Cloud (5).
+   - Profile Thresholds: Projects >= 3, Internships >= 1, Certifications >= 1, CGPA >= 7.0, Attendance >= 75%.
+2. Data Analyst:
+   - Primary Focus: SQL (8, wt 3.0), Communication (8, wt 3.0).
+   - Secondary: Programming (6), Aptitude (7), Cloud (4), Web (4), DSA (5).
+   - Profile Thresholds: Projects >= 2, Internships >= 1, Certifications >= 1, CGPA >= 6.5, Attendance >= 75%.
+3. Data Scientist:
+   - Primary Focus: Programming (8, wt 3.0), Aptitude (8, wt 3.0), SQL (7, wt 2.5).
+   - Secondary: DSA (7), Cloud (6), Communication (7), Web (4).
+   - Profile Thresholds: Projects >= 3, Internships >= 1, Certifications >= 2, CGPA >= 7.5, Attendance >= 75%.
+
+### Status and Priority Formulas
+
+- Gap Formula:
+  `gap = benchmark - candidate_score`
+- Status Classification:
+  - GOOD: `gap <= 0` (score meets or exceeds benchmark)
+  - MODERATE: `0 < gap <= 2` (within 2 points of benchmark)
+  - WEAK: `gap > 2` (more than 2 points below benchmark)
+- Priority Weighting:
+  `priority_score = gap * role_importance`
+  Deficiencies with higher priority scores are presented first in coaching recommendations.
+
+---
+
+## Readiness Score & Risk Levels
+
+### Overall Readiness Formula (0-100)
+
+$$\text{Readiness} = 100 \times \left(0.50 \cdot P(\text{placed}) + 0.25 \cdot \frac{\text{tech\_score}}{10} + 0.15 \cdot \frac{\text{soft\_score}}{10} + 0.10 \cdot \frac{\text{experience\_score}}{10}\right)$$
+
+### Placement Risk Thresholds
+
+- LOW: Placement probability >= 75% (`P >= 0.75`)
+- MEDIUM: Placement probability between 45% and 75% (`0.45 <= P < 0.75`)
+- HIGH: Placement probability below 45% (`P < 0.45`)
+
+---
+
+## Backend Services API
+
+The service layer (`backend/services.py`) is the single gateway between backend computation and the UI. It provides pure Python data structures without leaking Pandas or ML objects:
+
+- `get_app_status() -> dict`: Checks readiness of required files (`placement_model.pkl`, `salary_model.pkl`, `metrics.json`, `clean_data.csv`) and returns fix commands.
+- `get_ui_config() -> dict`: Provides application metadata, color palettes, risk thresholds, and tab titles.
+- `get_input_spec() -> List[dict]`: Provides input specifications for all 13 features with groups, types, bounds, and help text.
+- `get_example_students() -> Dict[str, Dict[str, float]]`: Supplies deep-copied benchmark profiles (Sample, Weak, Strong).
+- `get_roles() -> List[dict]`: Lists available role profiles with names and descriptions.
+- `get_full_report(student, role=None) -> dict`: Complete candidate diagnostic payload covering predictions, radar coordinates, skill gaps, impact analysis, recommendations, benchmark simulations, peer percentiles, and role comparisons.
+- `run_what_if(student, changes, role=None) -> dict`: Computes counterfactual simulations for modified student attributes.
+- `get_dataset_insights() -> dict`: Computes cached cohort distributions, placement rates, and salary percentiles.
+- `get_model_insights() -> dict`: Returns cross-validation summaries, holdout metrics, permutation importances, and figure paths.
+- `build_report_markdown(report) -> str`: Formats a comprehensive ASCII Markdown diagnostic summary.
+- `build_report_csv(report) -> str`: Produces a single-row CSV export of inputs, outputs, and recommendations.
+- `clear_caches() -> None`: Clears in-memory dataset and insight caches.
+
+---
+
+## Verification and Testing
+
+To verify pipeline integrity, run testing and evaluation commands from the repository root:
+
 ```bash
-python -m backend.train_models
+# Test inference and metrics
 python -m backend.predict
-```
-Execute the experimentation notebook:
-```bash
-python -m nbconvert --to notebook --execute --inplace notebooks/02_Model_Training.ipynb
-```
 
-### Generated Artifacts
-- `models/placement_model.pkl`: Serialized best placement classification Pipeline (`StandardScaler` + `LogisticRegression`)
-- `models/salary_model.pkl`: Serialized best conditional salary regression Pipeline (`StandardScaler` + `LinearRegression`)
-- `models/metrics.json`: Comprehensive 5-fold CV and holdout test evaluation metrics, hyperparameter grids, and permutation importances
-- `reports/figures/model_comparison_classifier.png`: Test set performance metrics across candidate classifiers
-- `reports/figures/roc_curves.png`: Receiver operating characteristic curves for all candidate classifiers
-- `reports/figures/confusion_matrix.png`: Confusion matrix for the chosen placement classifier
-- `reports/figures/calibration_curve.png`: Reliability diagram comparing predicted probabilities against empirical frequencies
-- `reports/figures/feature_importance_classifier.png`: Top 12 permutation feature importances for placement classification
-- `reports/figures/model_comparison_regressor.png`: MAE and RMSE comparison across salary regression candidates
-- `reports/figures/salary_actual_vs_predicted.png`: Actual vs. predicted salary scatter plot for placed students
-- `reports/figures/feature_importance_regressor.png`: Top 12 permutation feature importances for salary regression
-- `reports/figures/probability_sweep_dsa.png`: Sensitivity sweep demonstrating monotonic placement probability growth
-
-### Model Selection Rule (Leakage-Free)
-- **Leakage Prevention**: All model training, hyperparameter optimization, and pipeline selection rely strictly on `train.csv`. The `test.csv` partition is evaluated only once at the conclusion for unbiased metric reporting.
-- **Placement Classifier**: Evaluated using Stratified 5-Fold Cross-Validation. Any model with CV ROC-AUC within `MODEL_SELECTION_AUC_TOLERANCE` (0.005) of the maximum is considered tied; ties are broken by the lowest CV Brier score (best probability calibration).
-- **Salary Regressor**: Evaluated using 5-Fold Cross-Validation strictly on placed students (`placed == 1`). Selected by the lowest CV RMSE.
-
-### Readiness Score & Risk Level Thresholds
-- **Readiness Score (0-100)**:
-  $$\text{Readiness} = 100 \times \left(0.50 \cdot P(\text{placed}) + 0.25 \cdot \frac{\text{tech\_score}}{10} + 0.15 \cdot \frac{\text{soft\_score}}{10} + 0.10 \cdot \frac{\text{experience\_score}}{10}\right)$$
-- **Risk Level Thresholds**:
-  - **LOW**: $\text{probability} \ge 0.75$
-  - **MEDIUM**: $0.45 \le \text{probability} < 0.75$
-  - **HIGH**: $\text{probability} < 0.45$
-
----
-
-## 🎯 Module 3: Skill Gap & Recommendation Engine
-
-### Execution Order
-Run the skill gap assessment and recommendation engine from the repository root:
-```bash
+# Test skill gap analysis
 python -m backend.skill_gap
+
+# Test recommendation engine
 python -m backend.recommender
 ```
 
-### Roles & Benchmarks
-The system evaluates students against three specialized industry profiles:
-1. **Software Developer**: Core emphasis on DSA (importance 3.0) and Programming (importance 3.0), supported by Web, SQL, Cloud, Communication, and Aptitude.
-2. **Data Analyst**: Heavy focus on SQL (importance 3.0) and Communication (importance 3.0), supported by Programming, Aptitude, Cloud, and DSA.
-3. **Data Scientist**: Comprehensive mathematical and engineering profile prioritizing Programming (importance 3.0), Aptitude (importance 3.0), and SQL (importance 2.5).
+---
 
-### Skill Status & Prioritization Rules
-- **Status Classification**:
-  - **GOOD**: $\text{score} \ge \text{benchmark}$ ($\text{gap} \le 0$)
-  - **MODERATE**: $0 < \text{gap} \le 2$ points below benchmark
-  - **WEAK**: $\text{gap} > 2$ points below benchmark
-- **Priority Formula**:
-  $$\text{Priority Score} = \text{gap} \times \text{role\_importance}$$
-  Skills are ordered by descending priority score, directing student effort toward areas with the highest career payoff.
+## Methodological Limitations
 
-### Public API Functions
-- **`backend.skill_gap`**:
-  - `list_roles() -> List[str]`: Enumerate available career tracks.
-  - `get_role_profile(role) -> dict`: Retrieve benchmark thresholds and importance weights.
-  - `get_skill_status(score, benchmark) -> str`: Return GOOD, MODERATE, or WEAK status.
-  - `analyze_skills(student, role) -> dict`: Full breakdown of gaps, surpluses, role fit percentage, and profile checks.
-  - `get_improvement_targets(student, role) -> Dict[str, float]`: Benchmark targets for deficient features.
-  - `get_radar_data(student, role) -> dict`: Structured radar chart payload.
-- **`backend.recommender`**:
-  - `compute_impact_analysis(student, role) -> List[dict]`: Quantify probability gain for single-feature improvements.
-  - `get_recommendations(student, role, max_items, include_impact) -> List[dict]`: Actionable, prioritized coaching items.
-  - `simulate_improvement(student, changes) -> dict`: What-if simulation evaluating arbitrary metric adjustments.
-  - `simulate_reaching_benchmark(student, role, include_profile) -> dict`: Simulate reaching role benchmark requirements.
+- Synthetic Dataset: Data is generated using latent effort distributions and empirical hiring heuristics. While calibrated to real-world dynamics, predictions serve as advisory guidance, not career guarantees.
+- Conditional Salary: The salary prediction model is trained exclusively on placed candidates (`placed == 1`) and represents the expected annual package conditional upon securing a placement offer.
+- Self-Assessed Ratings: Technical and soft skill inputs rely on candidate self-ratings (1-10). In practical deployments, objective coding test scores and assessment results should supplement self-evaluations.
 
+---
 
+## Future Enhancements
+
+- Real Institutional Data: Fine-tune model parameters and benchmarks on historical multi-year university placement records.
+- Database Integration: Store assessment histories and cohort analytics in PostgreSQL or MongoDB.
+- Expanded Roles: Introduce specialized career tracks such as DevOps Engineer, Machine Learning Engineer, and Product Analyst.
+- PDF Diagnostic Export: Provide formal PDF generation for student portfolios and placement advisory cells.
+- Enterprise Deployment: Containerize application with Docker and deploy to cloud platforms with authentication.

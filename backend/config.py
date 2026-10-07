@@ -351,5 +351,122 @@ PROFILE_ACTIONS: Dict[str, str] = {
 }
 MAINTAIN_MESSAGE: str = "Your profile meets the benchmark for this role. Keep practicing with mock interviews and stay updated on current tools."
 
-# --- Module 4 will append sections below ---
+
+# ==========================================================
+# H) MODULE 4: DASHBOARD & UI CONFIGURATION
+# --- Module 4: Dashboard ---
+# ==========================================================
+APP_TITLE: str = "Placement Prediction and Skill Gap Analysis System"
+APP_SUBTITLE: str = "Check your placement chances, find your skill gaps and see what to improve first."
+APP_ICON: str = "\U0001F393"
+DISCLAIMER_TEXT: str = (
+    "Predictions come from models trained on a synthetic dataset that imitates "
+    "typical campus placement trends. Use them as guidance for self-improvement, "
+    "not as a guarantee. The salary shown is the estimated package if the student is placed."
+)
+TAB_NAMES: List[str] = [
+    "Prediction",
+    "Skill Gap",
+    "Recommendations",
+    "What-If",
+    "Insights",
+]
+
+INPUT_GROUPS: Dict[str, List[str]] = {
+    "Academics": ACADEMIC_COLS,
+    "Experience": EXPERIENCE_COLS,
+    "Technical Skills": TECH_SKILL_COLS,
+    "Soft Skills": SOFT_SKILL_COLS,
+}
+
+FEATURE_HELP: Dict[str, str] = {
+    "cgpa": "Current cumulative CGPA out of 10",
+    "backlogs": "Number of active backlogs",
+    "attendance": "Percentage of classes attended",
+    "internships": "Completed internships",
+    "projects": "Projects you can explain in an interview",
+    "certifications": "Relevant certifications earned",
+    "dsa": "Self-rating in DSA from 1 (beginner) to 10 (expert)",
+    "programming": "Self-rating in Programming from 1 (beginner) to 10 (expert)",
+    "sql": "Self-rating in SQL from 1 (beginner) to 10 (expert)",
+    "cloud": "Self-rating in Cloud from 1 (beginner) to 10 (expert)",
+    "web": "Self-rating in Web Development from 1 (beginner) to 10 (expert)",
+    "communication": "Self-rating in Communication from 1 (beginner) to 10 (expert)",
+    "aptitude": "Self-rating in Aptitude from 1 (beginner) to 10 (expert)",
+}
+
+EXAMPLE_STUDENTS: Dict[str, Dict[str, Union[int, float]]] = {
+    "Sample Student": dict(SAMPLE_STUDENT),
+    "Weak Profile": {
+        "cgpa": 5.8,
+        "backlogs": 3,
+        "attendance": 62,
+        "internships": 0,
+        "projects": 0,
+        "certifications": 0,
+        "dsa": 3,
+        "programming": 3,
+        "sql": 2,
+        "cloud": 1,
+        "web": 2,
+        "communication": 3,
+        "aptitude": 3,
+    },
+    "Strong Profile": {
+        "cgpa": 9.2,
+        "backlogs": 0,
+        "attendance": 92,
+        "internships": 2,
+        "projects": 5,
+        "certifications": 3,
+        "dsa": 9,
+        "programming": 9,
+        "sql": 8,
+        "cloud": 7,
+        "web": 8,
+        "communication": 8,
+        "aptitude": 9,
+    },
+}
+CUSTOM_PROFILE_LABEL: str = "Custom"
+
+WHATIF_FEATURES: List[str] = (
+    SKILL_COLS + ["projects", "internships", "certifications", "backlogs"]
+)
+
+STATUS_COLORS: Dict[str, str] = {
+    "GOOD": "#2E9E5B",
+    "MODERATE": "#E0A100",
+    "WEAK": "#D64545",
+}
+RISK_COLORS: Dict[str, str] = {
+    "LOW": "#2E9E5B",
+    "MEDIUM": "#E0A100",
+    "HIGH": "#D64545",
+}
+SEVERITY_COLORS: Dict[str, str] = {
+    "HIGH": "#D64545",
+    "MEDIUM": "#E0A100",
+    "LOW": "#4F6DF5",
+}
+BRAND_COLOR: str = "#4F6DF5"
+ACCENT_COLOR: str = "#9AA5B1"
+
+CGPA_BANDS: List[Tuple[float, float, str]] = [
+    (5.0, 6.5, "5.0-6.5"),
+    (6.5, 7.5, "6.5-7.5"),
+    (7.5, 8.5, "7.5-8.5"),
+    (8.5, 10.01, "8.5-10"),
+]
+SALARY_HIST_BINS: int = 15
+PEER_FEATURES: List[str] = [
+    "cgpa",
+    "tech_score",
+    "soft_score",
+    "experience_score",
+    "academic_score",
+]
+INSIGHT_FIGURE_LIMIT: int = 24
+
+# --- End of config ---
 
