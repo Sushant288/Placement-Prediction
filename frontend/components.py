@@ -12,7 +12,9 @@ import streamlit as st
 
 import frontend.charts as charts
 from backend.services import (
+    build_detailed_report_csv,
     build_report_csv,
+    build_report_html,
     build_report_markdown,
     get_dataset_insights,
     get_example_students,
@@ -237,12 +239,30 @@ def render_sidebar() -> Tuple[Dict[str, float], str]:
 
 
 def render_downloads(report: Dict[str, Any]) -> None:
-    """Render export download buttons for Markdown and CSV dossiers in sidebar."""
+    """Render export download buttons for HTML, Markdown, and CSV dossiers in sidebar."""
     st.sidebar.markdown("---")
     st.sidebar.subheader("Export Dossier")
+    html_content = build_report_html(report)
     md_content = build_report_markdown(report)
+    detailed_csv = build_detailed_report_csv(report)
     csv_content = build_report_csv(report)
 
+    st.sidebar.download_button(
+        "Download Formatted Report (HTML)",
+        data=html_content,
+        file_name="placement_evaluation_report.html",
+        mime="text/html",
+        key="dl_html",
+        **stretch_kwargs(st.sidebar.download_button),
+    )
+    st.sidebar.download_button(
+        "Download Detailed Report (CSV)",
+        data=detailed_csv,
+        file_name="placement_detailed_report.csv",
+        mime="text/csv",
+        key="dl_detailed_csv",
+        **stretch_kwargs(st.sidebar.download_button),
+    )
     st.sidebar.download_button(
         "Download Report (Markdown)",
         data=md_content,

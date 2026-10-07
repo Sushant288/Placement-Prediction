@@ -580,3 +580,199 @@ def build_report_csv(report: Dict[str, Any]) -> str:
     writer.writeheader()
     writer.writerow(row_dict)
     return output.getvalue()
+
+
+def build_detailed_report_csv(report: Dict[str, Any]) -> str:
+    """Generate structured multi-section CSV report detailing profile, outcomes, gaps, and recommendations."""
+    cleaned = report["student"]
+    pred = report["prediction"]
+    sal_rng = pred["salary_range"]
+    recs = report["recommendations"]
+    skills = report["skills"]
+    sim = report["benchmark_simulation"]
+
+    output = io.StringIO()
+    writer = csv.writer(output, lineterminator="\r\n")
+
+    # Header
+    writer.writerow(["# PLACEMENT PREDICTION AND SKILL GAP ANALYSIS - DETAILED EVALUATION REPORT"])
+    writer.writerow(["# Target Role", report["role"]])
+    writer.writerow(["# Executive Headline", report["headline"]])
+    writer.writerow([])
+
+    # Section 1: Candidate Profile
+    writer.writerow(["SECTION 1: CANDIDATE PROFILE AND INPUTS"])
+    writer.writerow(["Feature", "Value", "Domain Group"])
+    for grp_name, grp_cols in INPUT_GROUPS.items():
+        for col in grp_cols:
+            lbl = FEATURE_LABELS.get(col, col.title())
+            writer.writerow([lbl, cleaned[col], grp_name])
+    writer.writerow([])
+
+    # Section 2: Projections
+    writer.writerow(["SECTION 2: PROJECTIONS AND OUTCOMES"])
+    writer.writerow(["Metric", "Value", "Reference / Benchmark"])
+    writer.writerow(["Placement Probability", f"{pred['probability_pct']}%", f"Risk Tier: {pred['risk_level']}"])
+    writer.writerow(["Readiness Score", f"{pred['readiness_score']} / 100", "Composite benchmark: 75+"])
+    writer.writerow(["Expected Salary Package", sal_rng["label"], f"Point estimate: {pred['salary_estimate']} LPA (conditional on placement)"])
+    writer.writerow(["Role Alignment Fit", f"{skills['role_fit_pct']}%", "Alignment across target skills"])
+    writer.writerow([])
+
+    # Section 3: Skill Gaps
+    writer.writerow(["SECTION 3: SKILL GAP BREAKDOWN"])
+    writer.writerow(["Skill", "Current Score", "Benchmark Target", "Gap", "Status", "Priority Score"])
+    for s in SKILL_COLS:
+        st_data = skills["skill_status"][s]
+        writer.writerow([
+            st_data["label"],
+            st_data["score"],
+            st_data["benchmark"],
+            st_data["gap"],
+            st_data["status"],
+            st_data.get("priority_score", 0.0),
+        ])
+    writer.writerow([])
+
+    # Section 4: Recommendations
+    writer.writerow(["SECTION 4: PRIORITIZED RECOMMENDATIONS"])
+    writer.writerow(["Rank", "Severity", "Area", "Action", "Current Value", "Target Value", "Expected Gain"])
+    if recs:
+        for r in recs:
+            gain_val = f"+{r['expected_gain_pct']}%" if r.get("expected_gain_pct") is not None else "N/A"
+            writer.writerow([
+                r.get("rank", "-"),
+                r.get("severity", "-"),
+                r.get("label", "-"),
+                r.get("action", "-"),
+                r.get("current", "-"),
+                r.get("target", "-"),
+                gain_val,
+            ])
+    else:
+        writer.writerow(["-", "LOW", "Overall", "Profile meets or exceeds benchmarks.", "-", "-", "N/A"])
+    writer.writerow([])
+
+    # Section 5: Benchmark Simulation
+    writer.writerow(["SECTION 5: BENCHMARK SIMULATION"])
+    writer.writerow(["Scenario", "Outcome"])
+    writer.writerow(["Reaching All Role Benchmarks", sim["summary"]])
+    writer.writerow([])
+
+    # Section 6: Disclaimer
+    writer.writerow(["SECTION 6: REGULATORY DISCLAIMER"])
+    writer.writerow(["Notice", report["disclaimer"]])
+
+    return output.getvalue()
+
+
+def build_report_html(report: Dict[str, Any]) -> str:
+    """Generate self-contained, beautifully styled HTML evaluation dossier ready for printing or viewing."""
+    cleaned = report["student"]
+    pred = report["prediction"]
+    sal_rng = pred["salary_range"]
+    recs = report["recommendations"]
+    skills = report["skills"]
+    sim = report["benchmark_simulation"]
+
+    risk_color = RISK_COLORS.get(pred["risk_level"], BRAND_COLOR)
+
+    h = []
+    h.append("<!DOCTYPE html>")
+    h.append("<html lang=\"en\">")
+    h.append("<head>")
+    h.append("<meta charset=\"UTF-8\">")
+    h.append("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">")
+    h.append(f"<title>{APP_TITLE} - Evaluation Dossier</title>")
+    h.append("<style>")
+    h.append("  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 24px; background: #F8F9FA; color: #212529; line-height: 1.5; }")
+    h.append("  .container { max-width: 860px; margin: 0 auto; background: #FFFFFF; border-radius: 12px; padding: 32px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }")
+    h.append("  .header { border-bottom: 2px solid #EDF2F7; padding-bottom: 20px; margin-bottom: 24px; }")
+    h.append("  .header h1 { font-size: 24px; margin: 0 0 8px 0; color: #1A202C; }")
+    h.append("  .header .meta { font-size: 14px; color: #718096; }")
+    h.append("  .headline-box { background: #EEF2FF; border-left: 4px solid #4F6DF5; padding: 14px 18px; border-radius: 4px; font-weight: 500; margin-bottom: 24px; color: #2D3748; }")
+    h.append("  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }")
+    h.append("  .card { background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 16px; text-align: center; }")
+    h.append("  .card .label { font-size: 11px; text-transform: uppercase; color: #718096; font-weight: 600; letter-spacing: 0.5px; }")
+    h.append("  .card .val { font-size: 22px; font-weight: 700; margin: 6px 0 2px 0; color: #1A202C; }")
+    h.append("  .card .sub { font-size: 11px; color: #A0AEC0; }")
+    h.append("  .badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; color: #FFF; }")
+    h.append("  h2 { font-size: 17px; color: #2D3748; border-bottom: 1px solid #E2E8F0; padding-bottom: 8px; margin-top: 28px; margin-bottom: 14px; }")
+    h.append("  table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 13px; }")
+    h.append("  th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #EDF2F7; }")
+    h.append("  th { background: #F8FAFC; color: #4A5568; font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }")
+    h.append("  .rec-card { background: #F8FAFC; border: 1px solid #E2E8F0; border-left: 4px solid #4F6DF5; border-radius: 6px; padding: 12px 16px; margin-bottom: 12px; }")
+    h.append("  .rec-card .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }")
+    h.append("  .rec-card .title { font-weight: 600; font-size: 14px; color: #2D3748; }")
+    h.append("  .rec-card .action { font-size: 13px; color: #4A5568; margin-bottom: 6px; }")
+    h.append("  .rec-card .meta { font-size: 12px; color: #718096; }")
+    h.append("  .sim-box { background: #F0FFF4; border: 1px solid #C6F6D5; border-radius: 6px; padding: 14px; margin-bottom: 24px; font-size: 13px; color: #22543D; }")
+    h.append("  .disclaimer { font-size: 11px; color: #718096; border-top: 1px solid #EDF2F7; padding-top: 14px; margin-top: 28px; }")
+    h.append("  .btn-print { background: #4F6DF5; color: #FFF; border: none; border-radius: 6px; padding: 8px 16px; font-size: 13px; cursor: pointer; float: right; font-weight: 500; }")
+    h.append("  .btn-print:hover { background: #3B54C4; }")
+    h.append("  @media print { body { background: #FFF; padding: 0; } .container { box-shadow: none; padding: 0; } .no-print { display: none; } }")
+    h.append("</style>")
+    h.append("</head>")
+    h.append("<body>")
+    h.append("<div class=\"container\">")
+    h.append("  <button class=\"btn-print no-print\" onclick=\"window.print()\">Print / Save as PDF</button>")
+    h.append("  <div class=\"header\">")
+    h.append(f"    <h1>{APP_TITLE}</h1>")
+    h.append(f"    <div class=\"meta\">Candidate Diagnostic Dossier &bull; Target Role: <strong>{report['role']}</strong></div>")
+    h.append("  </div>")
+    h.append(f"  <div class=\"headline-box\">{report['headline']}</div>")
+
+    # KPI row
+    h.append("  <div class=\"grid-4\">")
+    h.append(f"    <div class=\"card\"><div class=\"label\">Placement Probability</div><div class=\"val\" style=\"color:{risk_color};\">{pred['probability_pct']}%</div><div class=\"sub\">Target: 75%+</div></div>")
+    h.append(f"    <div class=\"card\"><div class=\"label\">Readiness Score</div><div class=\"val\">{pred['readiness_score']}</div><div class=\"sub\">Out of 100</div></div>")
+    h.append(f"    <div class=\"card\"><div class=\"label\">Expected Package</div><div class=\"val\" style=\"font-size:18px;\">{sal_rng['label']}</div><div class=\"sub\">Conditional on placement</div></div>")
+    h.append(f"    <div class=\"card\"><div class=\"label\">Placement Risk</div><div class=\"val\"><span class=\"badge\" style=\"background:{risk_color};\">{pred['risk_level']}</span></div><div class=\"sub\">Role Fit: {skills['role_fit_pct']}%</div></div>")
+    h.append("  </div>")
+
+    # Profile Inputs table
+    h.append("  <h2>1. Profile Inputs</h2>")
+    h.append("  <table><thead><tr><th>Group</th><th>Feature</th><th>Value</th><th>Scale / Unit</th></tr></thead><tbody>")
+    for grp_name, grp_cols in INPUT_GROUPS.items():
+        for col in grp_cols:
+            lbl = FEATURE_LABELS.get(col, col.title())
+            unit = "/ 10" if col in SKILL_COLS else ("out of 10" if col == "cgpa" else "%" if col == "attendance" else "count")
+            h.append(f"<tr><td>{grp_name}</td><td><strong>{lbl}</strong></td><td>{cleaned[col]}</td><td>{unit}</td></tr>")
+    h.append("  </tbody></table>")
+
+    # Skill gaps table
+    h.append("  <h2>2. Skill Gap Analysis vs Benchmark</h2>")
+    h.append("  <table><thead><tr><th>Skill</th><th>Your Score</th><th>Role Benchmark</th><th>Gap</th><th>Status</th></tr></thead><tbody>")
+    for s in SKILL_COLS:
+        st_data = skills["skill_status"][s]
+        s_color = STATUS_COLORS.get(st_data["status"], BRAND_COLOR)
+        gap_sign = f"+{st_data['gap']}" if st_data['gap'] > 0 else f"{st_data['gap']}"
+        h.append(f"<tr><td><strong>{st_data['label']}</strong></td><td>{st_data['score']} / 10</td><td>{st_data['benchmark']} / 10</td><td>{gap_sign}</td><td><span class=\"badge\" style=\"background:{s_color};\">{st_data['status']}</span></td></tr>")
+    h.append("  </tbody></table>")
+
+    # Recommendations
+    h.append("  <h2>3. Prioritized Strategic Action Items</h2>")
+    if recs:
+        for r in recs:
+            sev_color = SEVERITY_COLORS.get(r.get("severity", "LOW"), BRAND_COLOR)
+            gain_txt = f"<span style=\"color:{BRAND_COLOR}; font-weight:600;\">+{r['expected_gain_pct']}% placement probability gain</span>" if r.get("expected_gain_pct") is not None else "General hygiene maintenance"
+            curr_target = f"Current: {r['current']} &rarr; Target: {r['target']}" if r.get("current") is not None and r.get("target") is not None else ""
+            h.append("  <div class=\"rec-card\">")
+            h.append(f"    <div class=\"top\"><span class=\"title\">#{r.get('rank', 1)}: {r.get('label', '')}</span><span class=\"badge\" style=\"background:{sev_color};\">{r.get('severity', 'LOW')}</span></div>")
+            h.append(f"    <div class=\"action\">{r.get('action', '')}</div>")
+            h.append(f"    <div class=\"meta\"><strong>Impact:</strong> {gain_txt} {('&bull; ' + curr_target) if curr_target else ''}</div>")
+            h.append("  </div>")
+    else:
+        h.append("  <p>No immediate deficiencies identified. Profile meets or exceeds target benchmarks.</p>")
+
+    # Benchmark simulation
+    h.append("  <h2>4. Benchmark Simulation</h2>")
+    h.append(f"  <div class=\"sim-box\"><strong>Simulated Outcome:</strong> {sim['summary']}</div>")
+
+    # Disclaimer
+    h.append(f"  <div class=\"disclaimer\"><strong>Methodological Notice:</strong> {report['disclaimer']}</div>")
+
+    h.append("</div>")
+    h.append("</body>")
+    h.append("</html>")
+
+    return "\n".join(h)
