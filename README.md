@@ -96,3 +96,46 @@ python -m backend.preprocessing
 
 > [!NOTE]
 > The current dataset is synthetically generated using calibrated latent ability/effort factors and empirical hiring relationships. The entire end-to-end pipeline operates seamlessly on real-world placement data by placing an institutional dataset with matching schema into `data/raw/placement_data.csv`.
+
+---
+
+## 🤖 Module 2: Machine Learning Models
+
+### Execution Order
+Execute model training and test prediction from the repository root:
+```bash
+python -m backend.train_models
+python -m backend.predict
+```
+Execute the experimentation notebook:
+```bash
+python -m nbconvert --to notebook --execute --inplace notebooks/02_Model_Training.ipynb
+```
+
+### Generated Artifacts
+- `models/placement_model.pkl`: Serialized best placement classification Pipeline (`StandardScaler` + `LogisticRegression`)
+- `models/salary_model.pkl`: Serialized best conditional salary regression Pipeline (`StandardScaler` + `LinearRegression`)
+- `models/metrics.json`: Comprehensive 5-fold CV and holdout test evaluation metrics, hyperparameter grids, and permutation importances
+- `reports/figures/model_comparison_classifier.png`: Test set performance metrics across candidate classifiers
+- `reports/figures/roc_curves.png`: Receiver operating characteristic curves for all candidate classifiers
+- `reports/figures/confusion_matrix.png`: Confusion matrix for the chosen placement classifier
+- `reports/figures/calibration_curve.png`: Reliability diagram comparing predicted probabilities against empirical frequencies
+- `reports/figures/feature_importance_classifier.png`: Top 12 permutation feature importances for placement classification
+- `reports/figures/model_comparison_regressor.png`: MAE and RMSE comparison across salary regression candidates
+- `reports/figures/salary_actual_vs_predicted.png`: Actual vs. predicted salary scatter plot for placed students
+- `reports/figures/feature_importance_regressor.png`: Top 12 permutation feature importances for salary regression
+- `reports/figures/probability_sweep_dsa.png`: Sensitivity sweep demonstrating monotonic placement probability growth
+
+### Model Selection Rule (Leakage-Free)
+- **Leakage Prevention**: All model training, hyperparameter optimization, and pipeline selection rely strictly on `train.csv`. The `test.csv` partition is evaluated only once at the conclusion for unbiased metric reporting.
+- **Placement Classifier**: Evaluated using Stratified 5-Fold Cross-Validation. Any model with CV ROC-AUC within `MODEL_SELECTION_AUC_TOLERANCE` (0.005) of the maximum is considered tied; ties are broken by the lowest CV Brier score (best probability calibration).
+- **Salary Regressor**: Evaluated using 5-Fold Cross-Validation strictly on placed students (`placed == 1`). Selected by the lowest CV RMSE.
+
+### Readiness Score & Risk Level Thresholds
+- **Readiness Score (0-100)**:
+  $$\text{Readiness} = 100 \times \left(0.50 \cdot P(\text{placed}) + 0.25 \cdot \frac{\text{tech\_score}}{10} + 0.15 \cdot \frac{\text{soft\_score}}{10} + 0.10 \cdot \frac{\text{experience\_score}}{10}\right)$$
+- **Risk Level Thresholds**:
+  - **LOW**: $\text{probability} \ge 0.75$
+  - **MEDIUM**: $0.45 \le \text{probability} < 0.75$
+  - **HIGH**: $\text{probability} < 0.45$
+

@@ -1,15 +1,293 @@
 {
-  "classification_metrics": {
-    "model_name": "RandomForestClassifier",
-    "accuracy": 0.0,
-    "precision": 0.0,
-    "recall": 0.0,
-    "f1_score": 0.0
+  "meta": {
+    "trained_at": "2026-10-07T18:20:16.212077",
+    "seed": 42,
+    "sklearn_version": "1.5.2",
+    "n_train": 2000,
+    "n_test": 500,
+    "features": [
+      "cgpa",
+      "backlogs",
+      "attendance",
+      "internships",
+      "projects",
+      "certifications",
+      "dsa",
+      "programming",
+      "sql",
+      "cloud",
+      "web",
+      "communication",
+      "aptitude",
+      "tech_score",
+      "soft_score",
+      "experience_score",
+      "academic_score"
+    ],
+    "placement_rate_train": 0.6785,
+    "placement_rate_test": 0.678
   },
-  "regression_metrics": {
-    "model_name": "RandomForestRegressor",
-    "mae": 0.0,
-    "rmse": 0.0,
-    "r2_score": 0.0
+  "classifier": {
+    "best_model": "logistic_regression",
+    "selection_reason": "Candidate 'logistic_regression' selected: within 0.005 AUC tolerance of best CV ROC-AUC (0.9134), broken by lowest CV Brier (0.1082).",
+    "models": {
+      "logistic_regression": {
+        "best_params": {
+          "model__C": 0.01
+        },
+        "cv_roc_auc": 0.9134,
+        "cv_brier": 0.1082,
+        "test": {
+          "accuracy": 0.852,
+          "precision": 0.863,
+          "recall": 0.9292,
+          "f1": 0.8949,
+          "roc_auc": 0.9127,
+          "brier_score": 0.1081,
+          "confusion_matrix": [
+            [
+              111,
+              50
+            ],
+            [
+              24,
+              315
+            ]
+          ]
+        },
+        "monotonic_violation_rate": 0.0
+      },
+      "decision_tree": {
+        "best_params": {
+          "model__max_depth": 5,
+          "model__min_samples_leaf": 20
+        },
+        "cv_roc_auc": 0.8864,
+        "cv_brier": 0.1222,
+        "test": {
+          "accuracy": 0.816,
+          "precision": 0.8459,
+          "recall": 0.8909,
+          "f1": 0.8678,
+          "roc_auc": 0.8688,
+          "brier_score": 0.1272,
+          "confusion_matrix": [
+            [
+              106,
+              55
+            ],
+            [
+              37,
+              302
+            ]
+          ]
+        },
+        "monotonic_violation_rate": 0.011
+      },
+      "random_forest": {
+        "best_params": {
+          "model__max_depth": 6,
+          "model__min_samples_leaf": 10,
+          "model__n_estimators": 200
+        },
+        "cv_roc_auc": 0.9099,
+        "cv_brier": 0.11,
+        "test": {
+          "accuracy": 0.858,
+          "precision": 0.8602,
+          "recall": 0.944,
+          "f1": 0.9001,
+          "roc_auc": 0.9068,
+          "brier_score": 0.1095,
+          "confusion_matrix": [
+            [
+              109,
+              52
+            ],
+            [
+              19,
+              320
+            ]
+          ]
+        },
+        "monotonic_violation_rate": 0.0
+      }
+    },
+    "baseline_brier": 0.2183,
+    "feature_importance": {
+      "backlogs": {
+        "mean": 0.01217,
+        "std": 0.0032
+      },
+      "academic_score": {
+        "mean": 0.01188,
+        "std": 0.00458
+      },
+      "dsa": {
+        "mean": 0.00885,
+        "std": 0.00223
+      },
+      "cgpa": {
+        "mean": 0.00722,
+        "std": 0.00364
+      },
+      "programming": {
+        "mean": 0.00582,
+        "std": 0.0037
+      },
+      "internships": {
+        "mean": 0.00508,
+        "std": 0.00293
+      },
+      "experience_score": {
+        "mean": 0.00496,
+        "std": 0.00229
+      },
+      "attendance": {
+        "mean": 0.00496,
+        "std": 0.00235
+      },
+      "tech_score": {
+        "mean": 0.00345,
+        "std": 0.00263
+      },
+      "communication": {
+        "mean": 0.00281,
+        "std": 0.00194
+      },
+      "projects": {
+        "mean": 0.00255,
+        "std": 0.00125
+      },
+      "sql": {
+        "mean": 0.00172,
+        "std": 0.00094
+      },
+      "soft_score": {
+        "mean": 0.00127,
+        "std": 0.00271
+      },
+      "cloud": {
+        "mean": 0.00071,
+        "std": 0.00091
+      },
+      "certifications": {
+        "mean": 0.0007,
+        "std": 0.00124
+      },
+      "aptitude": {
+        "mean": -0.00078,
+        "std": 0.00161
+      },
+      "web": {
+        "mean": -0.00253,
+        "std": 0.00145
+      }
+    }
+  },
+  "regressor": {
+    "best_model": "linear_regression",
+    "selection_reason": "Candidate 'linear_regression' selected with lowest CV RMSE (1.1766) and CV MAE (0.8163).",
+    "models": {
+      "linear_regression": {
+        "best_params": {
+          "model__fit_intercept": true
+        },
+        "cv_rmse": 1.1766,
+        "cv_mae": 0.8163,
+        "test": {
+          "mae": 0.785,
+          "rmse": 1.1202,
+          "r2": 0.7781
+        }
+      },
+      "random_forest_regressor": {
+        "best_params": {
+          "model__max_depth": null,
+          "model__min_samples_leaf": 5,
+          "model__n_estimators": 300
+        },
+        "cv_rmse": 1.2266,
+        "cv_mae": 0.825,
+        "test": {
+          "mae": 0.7717,
+          "rmse": 1.1423,
+          "r2": 0.7693
+        }
+      }
+    },
+    "baseline_rmse": 2.3786,
+    "n_train_rows": 1357,
+    "n_test_rows": 339,
+    "feature_importance": {
+      "experience_score": {
+        "mean": 369.98078,
+        "std": 21.21856
+      },
+      "internships": {
+        "mean": 155.2538,
+        "std": 9.44764
+      },
+      "projects": {
+        "mean": 124.18891,
+        "std": 7.19461
+      },
+      "certifications": {
+        "mean": 19.4844,
+        "std": 1.61733
+      },
+      "dsa": {
+        "mean": 0.09967,
+        "std": 0.01799
+      },
+      "tech_score": {
+        "mean": 0.05609,
+        "std": 0.00952
+      },
+      "programming": {
+        "mean": 0.04487,
+        "std": 0.00572
+      },
+      "cgpa": {
+        "mean": 0.03989,
+        "std": 0.00895
+      },
+      "academic_score": {
+        "mean": 0.01792,
+        "std": 0.00565
+      },
+      "sql": {
+        "mean": 0.01452,
+        "std": 0.00352
+      },
+      "communication": {
+        "mean": 0.01322,
+        "std": 0.00488
+      },
+      "cloud": {
+        "mean": 0.01202,
+        "std": 0.0037
+      },
+      "backlogs": {
+        "mean": 0.0032,
+        "std": 0.00162
+      },
+      "soft_score": {
+        "mean": 0.00264,
+        "std": 0.00133
+      },
+      "web": {
+        "mean": 0.00064,
+        "std": 0.00025
+      },
+      "aptitude": {
+        "mean": 0.00035,
+        "std": 0.00213
+      },
+      "attendance": {
+        "mean": 0.0001,
+        "std": 0.00047
+      }
+    }
   }
 }
