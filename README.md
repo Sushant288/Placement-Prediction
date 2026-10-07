@@ -15,7 +15,7 @@ An end-to-end Machine Learning and Data Science system that evaluates student pl
 - Interactive What-If Simulation: Live experimentation tool enabling candidates to test skill and profile adjustments and observe immediate metric shifts.
 - Cross-Role Comparison: Ranks alignment across all defined career tracks to reveal best-fit opportunities.
 - Institutional Insights: Cohort-level distributions, placement rates across internships/CGPA bands, model leaderboards, and feature importance rankings.
-- Exportable Reports: Instant downloads of complete diagnostic reports in Markdown and tabular summaries in CSV.
+- Exportable Dossiers: Direct downloads of beautifully styled HTML evaluation reports (with print-to-PDF support), structured multi-section CSV reports, Markdown dossiers, and single-row CSV summaries.
 
 ---
 
@@ -57,6 +57,7 @@ An end-to-end Machine Learning and Data Science system that evaluates student pl
 |  - Validates inputs and enforces clean boundaries                                 |
 |  - Caches institutional analytics and datasets                                    |
 |  - Serves pure Python dictionaries/lists (no DataFrames or ML objects to UI)      |
+|  - Generates HTML, multi-section CSV, Markdown, and tabular export formats       |
 +-----------------------------------------------------------------------------------+
                                     |
                                     v
@@ -183,11 +184,41 @@ streamlit run app.py
 - Clean architectural boundary: frontend never accesses backend ML models, data files, or internal modules directly.
 - Pure Plotly visualizations that adapt dynamically to light and dark themes.
 - Five comprehensive tabs: Prediction, Skill Gap, Recommendations, What-If Simulation, and Institutional Insights.
-- Export options for Markdown diagnostics and CSV records.
+- Comprehensive exports: Formatted HTML report (print-to-PDF ready), structured multi-section CSV, Markdown dossier, and single-row CSV summary.
 
 ---
 
-## Machine Learning Results
+## Exploratory Data Analysis & Visualizations
+
+The dataset dynamics, distributions, and hiring trends are captured in the generated analytical figures below:
+
+### 1. Cohort Placement Distribution & Feature Comparisons
+
+![Target Distribution](reports/figures/target_distribution.png)
+*Figure 1: Overall placement target distribution across the cohort.*
+
+![Placed vs Not Placed](reports/figures/placed_vs_not_placed.png)
+*Figure 2: Mean feature profiles comparing placed vs unplaced student cohorts.*
+
+![Placed Boxplots](reports/figures/placed_boxplots.png)
+*Figure 3: Metric dispersion and quartile spreads for key predictors.*
+
+### 2. Correlation Matrix & Feature Interdependencies
+
+![Correlation Heatmap](reports/figures/correlation_heatmap.png)
+*Figure 4: Correlation heatmap illustrating relationships between skills, academics, experience, and placement outcomes.*
+
+### 3. Engineered Domain Sub-Scores & Salary Distributions
+
+![Engineered Features](reports/figures/engineered_features.png)
+*Figure 5: Distributions of composite domain scores (Technical, Soft Skills, Practical Experience, and Academic Standing).*
+
+![Salary Analysis](reports/figures/salary_analysis.png)
+*Figure 6: Compensation package distributions, percentiles, and correlations conditional on placement offer.*
+
+---
+
+## Machine Learning Results & Diagnostic Plots
 
 Real performance metrics recorded on the holdout test set (500 samples, 20%) from `models/metrics.json`:
 
@@ -202,6 +233,28 @@ Real performance metrics recorded on the holdout test set (500 samples, 20%) fro
 Baseline Test Brier Score (Dummy Classifier): 0.2183.
 Selection Reason: Logistic Regression was selected because its CV ROC-AUC (0.9134) was within the 0.005 tolerance of the highest score and achieved the lowest CV Brier score (0.1082), ensuring well-calibrated probabilities.
 
+### Classifier Diagnostic Graphs
+
+![Model Comparison Classifier](reports/figures/model_comparison_classifier.png)
+*Figure 7: Evaluation metrics comparison across candidate classifiers.*
+
+![ROC Curves](reports/figures/roc_curves.png)
+*Figure 8: Receiver Operating Characteristic (ROC) curves and holdout AUC scores.*
+
+![Confusion Matrix](reports/figures/confusion_matrix.png)
+*Figure 9: Confusion matrix for selected Logistic Regression pipeline on holdout test set.*
+
+![Calibration Curve](reports/figures/calibration_curve.png)
+*Figure 10: Calibration curve showing close alignment between predicted probabilities and empirical placement frequencies.*
+
+![Feature Importance Classifier](reports/figures/feature_importance_classifier.png)
+*Figure 11: Top 12 permutation feature importances for placement classification.*
+
+![Probability Sweep DSA](reports/figures/probability_sweep_dsa.png)
+*Figure 12: Sensitivity sweep verifying monotonic increase in placement probability as DSA proficiency rises.*
+
+---
+
 ### Salary Regressor Benchmark (Placed Candidates)
 
 | Model | CV RMSE | CV MAE | Test MAE | Test RMSE | Test R2 | Selected |
@@ -211,6 +264,17 @@ Selection Reason: Logistic Regression was selected because its CV ROC-AUC (0.913
 
 Baseline Test RMSE (Mean Regressor): 2.3786 LPA.
 Selection Reason: Linear Regression achieved the lowest CV RMSE (1.1766) and CV MAE (0.8163).
+
+### Regressor Diagnostic Graphs
+
+![Model Comparison Regressor](reports/figures/model_comparison_regressor.png)
+*Figure 13: Error metrics (MAE and RMSE) comparison across salary regressor candidates.*
+
+![Salary Actual vs Predicted](reports/figures/salary_actual_vs_predicted.png)
+*Figure 14: Actual vs predicted salary package scatter plot for placed students.*
+
+![Feature Importance Regressor](reports/figures/feature_importance_regressor.png)
+*Figure 15: Permutation feature importances for conditional salary regression.*
 
 ---
 
@@ -243,6 +307,11 @@ Selection Reason: Linear Regression achieved the lowest CV RMSE (1.1766) and CV 
   `priority_score = gap * role_importance`
   Deficiencies with higher priority scores are presented first in coaching recommendations.
 
+### Skill Gap Preview
+
+![Skill Gap Preview](reports/figures/skill_gap_preview.png)
+*Figure 16: Benchmark comparison radar chart and horizontal gap visualization.*
+
 ---
 
 ## Readiness Score & Risk Levels
@@ -259,6 +328,22 @@ $$\text{Readiness} = 100 \times \left(0.50 \cdot P(\text{placed}) + 0.25 \cdot \
 
 ---
 
+## Export Dossiers & Reports
+
+The application provides four export formats under the sidebar's "Export Dossier" section:
+
+1. Formatted HTML Report (`placement_evaluation_report.html`):
+   - Fully styled, standalone document ready for viewing in any browser or printing directly to PDF.
+   - Includes executive KPI summary cards, candidate profile input table, skill gap analysis table with colored status badges, prioritized action item cards with expected gains, benchmark simulation outcomes, and institutional disclaimers.
+2. Structured Detailed CSV (`placement_detailed_report.csv`):
+   - Multi-section CSV report organized into Candidate Profile & Inputs, Projections & Outcomes, Skill Gap Breakdown, Prioritized Recommendations, Benchmark Simulation, and Regulatory Disclaimer.
+3. Plain Markdown Dossier (`placement_readiness_report.md`):
+   - Markdown formatted candidate diagnostic summary.
+4. Single-Row Summary CSV (`placement_summary.csv`):
+   - Flat tabular data record containing inputs, outcome metrics, and top recommendation labels.
+
+---
+
 ## Backend Services API
 
 The service layer (`backend/services.py`) is the single gateway between backend computation and the UI. It provides pure Python data structures without leaking Pandas or ML objects:
@@ -272,6 +357,8 @@ The service layer (`backend/services.py`) is the single gateway between backend 
 - `run_what_if(student, changes, role=None) -> dict`: Computes counterfactual simulations for modified student attributes.
 - `get_dataset_insights() -> dict`: Computes cached cohort distributions, placement rates, and salary percentiles.
 - `get_model_insights() -> dict`: Returns cross-validation summaries, holdout metrics, permutation importances, and figure paths.
+- `build_report_html(report) -> str`: Formats an ASCII standalone styled HTML diagnostic dossier with print-to-PDF support.
+- `build_detailed_report_csv(report) -> str`: Produces a structured multi-section CSV report.
 - `build_report_markdown(report) -> str`: Formats a comprehensive ASCII Markdown diagnostic summary.
 - `build_report_csv(report) -> str`: Produces a single-row CSV export of inputs, outputs, and recommendations.
 - `clear_caches() -> None`: Clears in-memory dataset and insight caches.
