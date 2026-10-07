@@ -139,3 +139,44 @@ python -m nbconvert --to notebook --execute --inplace notebooks/02_Model_Trainin
   - **MEDIUM**: $0.45 \le \text{probability} < 0.75$
   - **HIGH**: $\text{probability} < 0.45$
 
+---
+
+## 🎯 Module 3: Skill Gap & Recommendation Engine
+
+### Execution Order
+Run the skill gap assessment and recommendation engine from the repository root:
+```bash
+python -m backend.skill_gap
+python -m backend.recommender
+```
+
+### Roles & Benchmarks
+The system evaluates students against three specialized industry profiles:
+1. **Software Developer**: Core emphasis on DSA (importance 3.0) and Programming (importance 3.0), supported by Web, SQL, Cloud, Communication, and Aptitude.
+2. **Data Analyst**: Heavy focus on SQL (importance 3.0) and Communication (importance 3.0), supported by Programming, Aptitude, Cloud, and DSA.
+3. **Data Scientist**: Comprehensive mathematical and engineering profile prioritizing Programming (importance 3.0), Aptitude (importance 3.0), and SQL (importance 2.5).
+
+### Skill Status & Prioritization Rules
+- **Status Classification**:
+  - **GOOD**: $\text{score} \ge \text{benchmark}$ ($\text{gap} \le 0$)
+  - **MODERATE**: $0 < \text{gap} \le 2$ points below benchmark
+  - **WEAK**: $\text{gap} > 2$ points below benchmark
+- **Priority Formula**:
+  $$\text{Priority Score} = \text{gap} \times \text{role\_importance}$$
+  Skills are ordered by descending priority score, directing student effort toward areas with the highest career payoff.
+
+### Public API Functions
+- **`backend.skill_gap`**:
+  - `list_roles() -> List[str]`: Enumerate available career tracks.
+  - `get_role_profile(role) -> dict`: Retrieve benchmark thresholds and importance weights.
+  - `get_skill_status(score, benchmark) -> str`: Return GOOD, MODERATE, or WEAK status.
+  - `analyze_skills(student, role) -> dict`: Full breakdown of gaps, surpluses, role fit percentage, and profile checks.
+  - `get_improvement_targets(student, role) -> Dict[str, float]`: Benchmark targets for deficient features.
+  - `get_radar_data(student, role) -> dict`: Structured radar chart payload.
+- **`backend.recommender`**:
+  - `compute_impact_analysis(student, role) -> List[dict]`: Quantify probability gain for single-feature improvements.
+  - `get_recommendations(student, role, max_items, include_impact) -> List[dict]`: Actionable, prioritized coaching items.
+  - `simulate_improvement(student, changes) -> dict`: What-if simulation evaluating arbitrary metric adjustments.
+  - `simulate_reaching_benchmark(student, role, include_profile) -> dict`: Simulate reaching role benchmark requirements.
+
+

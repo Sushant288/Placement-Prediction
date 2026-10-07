@@ -178,5 +178,178 @@ MONOTONIC_RAW_FEATURES: List[str] = [
     "certifications",
 ]
 
-# --- Modules 3-4 will append sections below ---
+
+# ==========================================================
+# G) MODULE 3: SKILL GAP & RECOMMENDATION ENGINE
+# --- Module 3: Skill Gap & Recommendations ---
+# ==========================================================
+SKILL_COLS: List[str] = TECH_SKILL_COLS + SOFT_SKILL_COLS  # canonical order, 7 skills
+FEATURE_LABELS: Dict[str, str] = {
+    "cgpa": "CGPA",
+    "backlogs": "Backlogs",
+    "attendance": "Attendance",
+    "internships": "Internships",
+    "projects": "Projects",
+    "certifications": "Certifications",
+    "dsa": "DSA",
+    "programming": "Programming",
+    "sql": "SQL",
+    "cloud": "Cloud",
+    "web": "Web Development",
+    "communication": "Communication",
+    "aptitude": "Aptitude",
+}
+DEFAULT_ROLE: str = "Software Developer"
+
+STATUS_GOOD: str = "GOOD"
+STATUS_MODERATE: str = "MODERATE"
+STATUS_WEAK: str = "WEAK"
+MODERATE_MAX_GAP: int = 2  # gap = benchmark - score
+# gap <= 0 -> GOOD ; 0 < gap <= 2 -> MODERATE ; gap > 2 -> WEAK
+SEVERITY_HIGH: str = "HIGH"
+SEVERITY_MEDIUM: str = "MEDIUM"
+SEVERITY_LOW: str = "LOW"
+SEVERITY_ORDER: Dict[str, int] = {"HIGH": 0, "MEDIUM": 1, "LOW": 2}
+
+ROLE_PROFILES: Dict[str, Dict[str, Any]] = {
+    "Software Developer": {
+        "description": "Builds and maintains software products and services.",
+        "skill_benchmarks": {
+            "dsa": 8,
+            "programming": 8,
+            "sql": 6,
+            "cloud": 5,
+            "web": 6,
+            "communication": 6,
+            "aptitude": 6,
+        },
+        "skill_importance": {
+            "dsa": 3.0,
+            "programming": 3.0,
+            "sql": 2.0,
+            "cloud": 1.5,
+            "web": 2.0,
+            "communication": 1.5,
+            "aptitude": 1.5,
+        },
+        "profile_requirements": {
+            "projects": 3,
+            "internships": 1,
+            "certifications": 1,
+            "cgpa": 7.0,
+            "attendance": 75,
+        },
+    },
+    "Data Analyst": {
+        "description": "Turns data into reports, dashboards and business insights.",
+        "skill_benchmarks": {
+            "dsa": 5,
+            "programming": 6,
+            "sql": 8,
+            "cloud": 4,
+            "web": 4,
+            "communication": 8,
+            "aptitude": 7,
+        },
+        "skill_importance": {
+            "dsa": 1.0,
+            "programming": 2.0,
+            "sql": 3.0,
+            "cloud": 1.0,
+            "web": 1.0,
+            "communication": 3.0,
+            "aptitude": 2.5,
+        },
+        "profile_requirements": {
+            "projects": 3,
+            "internships": 1,
+            "certifications": 2,
+            "cgpa": 7.0,
+            "attendance": 75,
+        },
+    },
+    "Data Scientist": {
+        "description": "Builds statistical and machine learning models on data.",
+        "skill_benchmarks": {
+            "dsa": 6,
+            "programming": 8,
+            "sql": 7,
+            "cloud": 5,
+            "web": 3,
+            "communication": 7,
+            "aptitude": 8,
+        },
+        "skill_importance": {
+            "dsa": 2.0,
+            "programming": 3.0,
+            "sql": 2.5,
+            "cloud": 1.5,
+            "web": 1.0,
+            "communication": 2.0,
+            "aptitude": 3.0,
+        },
+        "profile_requirements": {
+            "projects": 3,
+            "internships": 1,
+            "certifications": 2,
+            "cgpa": 7.5,
+            "attendance": 75,
+        },
+    },
+}
+PROFILE_MAX_BACKLOGS: int = 0  # global rule: no backlogs
+
+PROFILE_RULE_WEIGHTS: Dict[str, float] = {
+    "projects": 1.5,
+    "internships": 2.0,
+    "certifications": 0.5,
+    "backlogs": 2.5,
+    "cgpa": 1.0,
+    "attendance": 0.3,
+}
+PROJECTS_HIGH_SHORTFALL: int = 2  # projects shortfall >= 2 -> HIGH, else MEDIUM
+SKILL_SEVERITY: Dict[str, str] = {"WEAK": "HIGH", "MODERATE": "MEDIUM"}
+
+SKILL_ACTIONS: Dict[str, Dict[str, str]] = {
+    "dsa": {
+        "WEAK": "Start DSA fundamentals (arrays, strings, hashing, recursion), then solve 3-4 easy problems a week on LeetCode or HackerRank.",
+        "MODERATE": "Practice medium-level problems on trees, graphs and dynamic programming; aim for 100 solved problems and do timed mock rounds.",
+    },
+    "programming": {
+        "WEAK": "Strengthen core programming in one language (Python, Java or C++): write small programs daily and finish a structured beginner-to-intermediate course.",
+        "MODERATE": "Deepen your main language: OOP, error handling, clean code and basic testing; refactor one of your older projects.",
+    },
+    "sql": {
+        "WEAK": "Learn SQL basics (SELECT, WHERE, GROUP BY, JOINs), then solve 30 beginner problems on HackerRank or LeetCode.",
+        "MODERATE": "Practice 50 SQL problems on LeetCode or HackerRank covering joins, subqueries and window functions.",
+    },
+    "cloud": {
+        "WEAK": "Learn cloud fundamentals (compute, storage, networking, IAM) through the free learning paths of AWS, Azure or GCP, and consider a foundational cloud certification.",
+        "MODERATE": "Deploy one of your projects on a cloud platform and learn basic services (virtual machines, object storage, a managed database).",
+    },
+    "web": {
+        "WEAK": "Learn HTML, CSS and JavaScript basics, then build a small responsive website.",
+        "MODERATE": "Build a full-stack project with a framework (React, Flask, Django or Node) including REST APIs and deployment.",
+    },
+    "communication": {
+        "WEAK": "Practice speaking daily: explain a technical topic aloud for 5 minutes, join a club or group discussions, and record yourself.",
+        "MODERATE": "Do 3-4 mock HR and technical interviews with peers and practice structuring answers (situation, task, action, result).",
+    },
+    "aptitude": {
+        "WEAK": "Start aptitude basics (percentages, ratios, time and work, logical reasoning) with about 20 questions a day.",
+        "MODERATE": "Take timed aptitude mock tests weekly and review mistakes by topic (quant, logical, verbal).",
+    },
+}
+
+PROFILE_ACTIONS: Dict[str, str] = {
+    "projects": "Build {shortfall} more industry-level project(s) with a real use case, a GitHub repository and a short write-up.",
+    "internships": "Apply for internships (on-campus, off-campus or remote) or contribute to open-source projects to gain real-world experience.",
+    "certifications": "Earn {shortfall} relevant certification(s) (for example from Coursera, NPTEL, Google or Microsoft learning paths) aligned with your target role.",
+    "backlogs": "Clear your {current} backlog(s) as early as possible; many companies require no active backlogs.",
+    "cgpa": "Raise your CGPA toward {target}: focus on upcoming semester scores, since many companies apply a CGPA cutoff.",
+    "attendance": "Improve attendance to at least {target}% to avoid eligibility issues.",
+}
+MAINTAIN_MESSAGE: str = "Your profile meets the benchmark for this role. Keep practicing with mock interviews and stay updated on current tools."
+
+# --- Module 4 will append sections below ---
 
